@@ -21,7 +21,7 @@ void testDefaultConstructor() {
 
 void testWriteRead() {
 
-    CircularFIFO<AudioBuffer<int16_t>*> fifo(3); // Capacity of 3
+    CircularFIFO<AudioBuffer<int16_t>*> fifo(3);                        // Capacity of 3
 
     // Prepare test data using std::vector
     std::vector<int16_t> sampleData1 = {1, 2, 3};
@@ -37,7 +37,7 @@ void testWriteRead() {
 }
 
 void testQueueFull() {
-    CircularFIFO<AudioBuffer<int16_t>*> fifo(2); // Capacity of 2
+    CircularFIFO<AudioBuffer<int16_t>*> fifo(2);                        // Capacity of 2
 
     // Fill the queue
     std::vector<int16_t> sampleData1 = {1, 2, 3};
@@ -52,15 +52,14 @@ void testQueueFull() {
     std::vector<int16_t> sampleData3 = {7, 8, 9};
     AudioBuffer<int16_t>* ab3 = new AudioBuffer<int16_t>(sampleData3);
 
-    // Check if WriteElement() blocks or returns false (depending on your implementation)
-    // This is the critical part for checking full behavior
-    bool writeSuccess = fifo.writeElement(ab3); // Should either block or return false
+    // This is the part for checking full behavior
+    bool writeSuccess = fifo.writeElement(ab3);             // Should either block or return false
 
     if (!writeSuccess) {
         std::cout << "Write failed as expected, queue is full!" << std::endl;
     } else {
         std::cout << "Error: Queue should not accept more elements when full!" << std::endl;
-        assert(false);  // Fail the test if write was successful
+        assert(false);         
     }
 
     // Clean up
