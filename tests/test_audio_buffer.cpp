@@ -1,15 +1,17 @@
 #include "../scripts/audio_buffer.h"
-#include <cassert>
 #include <iostream>
-#include <iomanip> // For setting output precision
-#include <vector>  // Include vector header
+#include <iomanip> 
+#include <vector>  
+#include <cassert>
 
 void testAudioBufferConstructor() {
+    //Testing the AudioBuffer Constructor
+
     const int sample_count = 5;
-    int16_t sampleData[] = {0, 1, 2, 3, 4};
+    std::vector<int16_t> sampleData = {0, 1, 2, 3, 4}; 
 
     // Create an AudioBuffer using the constructor
-    AudioBuffer<int16_t> ab(sampleData, sample_count);
+    AudioBuffer<int16_t> ab(sampleData);
 
     // Validate sample_count
     assert(ab.sample_count == sample_count);
@@ -17,32 +19,30 @@ void testAudioBufferConstructor() {
 
     // Validate samples
     for (int i = 0; i < sample_count; ++i) {
-        assert(ab.samples[i] == sampleData[i]); // Check each sample value
+        assert(ab.samples[i] == sampleData[i]); 
     }
 
     // Print samples to confirm correct values
     ab.printSamples();
-    
-    std::cout << "AudioBuffer constructor test passed!" << std::endl;
+    std::cout << "Test1: AudioBuffer constructor test passed!" << std::endl;
 }
 
 template <typename T>
 void testAudioBuffer() {
-    // Test data
+    //Testing AudioBuffer with integer and float.
+
     const int sample_count = 5;
 
-    // Use std::vector for sample data
     std::vector<T> sampleData(sample_count);
     
     // Initialize sample data
     for (int i = 0; i < sample_count; ++i) {
         sampleData[i] = static_cast<T>(i * 1.0); // Fill with values 0.0, 1.0, 2.0, etc.
-        std::cout << sampleData[i] << " "; // Print initialized sample values
+        std::cout << sampleData[i] << " "; 
     }
-    std::cout << std::endl; // New line for better readability
-
+    std::cout << std::endl; 
     // Create AudioBuffer
-    AudioBuffer<T> ab(sampleData.data(), sample_count);
+    AudioBuffer<T> ab(sampleData);
 
     // Validate sample_count
     assert(ab.sample_count == sample_count);
@@ -52,16 +52,18 @@ void testAudioBuffer() {
         assert(ab.samples[i] == static_cast<T>(i)); // Check each sample value
     }
 
-    std::cout << "AudioBuffer template test passed for type: " << typeid(T).name() << std::endl;
+    std::cout << "Test2: AudioBuffer template test passed for type: " << typeid(T).name() << std::endl;
 }
 
 void testZeroSamples() {
+    //Testing AudioBuffer with zero samples
+
     const int sample_count = 0;
     // Using an empty vector for zero samples
-    std::vector<float> sampleData; // No allocation needed for zero samples
+    std::vector<float> sampleData; 
 
     // Create AudioBuffer
-    AudioBuffer<float> ab(sampleData.data(), sample_count);
+    AudioBuffer<float> ab(sampleData);
 
     // Validate sample_count
     assert(ab.sample_count == sample_count);
@@ -69,20 +71,22 @@ void testZeroSamples() {
     // Print samples (should show no output)
     ab.printSamples();
     
-    std::cout << "Zero samples test passed!" << std::endl;
+    std::cout << "Test3: Zero samples test passed!" << std::endl;
 }
 
 void testNegativeSampleCount() {
-    const int sample_count = -5; // Negative sample count
+    //Testing AudioBuffer with negative sample count
+
+    const int sample_count = -5; 
 
     // Create AudioBuffer with negative sample count
-    AudioBuffer<float> ab(nullptr, sample_count); // Now this won't throw an exception
+    AudioBuffer<float> ab({}); 
 
     // Validate the behavior
     assert(ab.sample_count == 0); // Ensure sample_count is set to 0
-    assert(ab.samples == nullptr); // Ensure samples is nullptr
+    assert(ab.samples.empty()); // Ensure samples is nullptr
 
-    std::cout << "Completed test for negative sample count." << std::endl;
+    std::cout << "Test4: Completed test for negative sample count." << std::endl;
 }
 
 void testPointerValidity() {
@@ -95,43 +99,24 @@ void testPointerValidity() {
     }
 
     // Create AudioBuffer
-    AudioBuffer<float>* ab = new AudioBuffer<float>(sampleData.data(), sample_count);
+    AudioBuffer<float> ab(sampleData); 
 
-    // Check if samples pointer is valid before destruction
-    assert(ab->samples != nullptr); // It should not be nullptr
+    // Check if samples pointer is valid before operation
+    assert(!ab.samples.empty()); // It should not be empty
 
-    // Destructor will be called when we delete ab
-    delete ab; // Deleting the AudioBuffer
-
-    // Check if samples pointer is set to nullptr
-    // Since the destructor is called, we should not check ab->samples directly.
-    // However, we can check the pointer validity manually by setting samples to nullptr in the destructor.
-    ab = nullptr; // Setting to nullptr to mimic the destructor behavior
-
-    // Assert that ab is nullptr after deletion
-    assert(ab == nullptr); // Now, it should be nullptr
-
-    std::cout << "Pointer validity check passed." << std::endl;
+    std::cout << "Test5: Pointer validity check passed." << std::endl;
 }
 
 int main() {
-    std::cout << "Testing the AudioBuffer Constructor" << std::endl;
+
     testAudioBufferConstructor();
 
     std::cout << std::fixed << std::setprecision(1); // Set precision for float output
-
-    std::cout << "** Testing AudioBuffer with int..." << std::endl;
     testAudioBuffer<int>();
-    
-    std::cout << "** Testing AudioBuffer with float..." << std::endl;
     testAudioBuffer<float>();
 
-    std::cout << "** Testing AudioBuffer with zero samples..." << std::endl;
     testZeroSamples();
-
-    std::cout << "** Testing AudioBuffer with negative sample count..." << std::endl;
     testNegativeSampleCount();
-
     testPointerValidity();
 
     std::cout << "All tests passed!" << std::endl;
