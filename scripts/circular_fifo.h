@@ -8,24 +8,40 @@
 template <typename T>
 class CircularFIFO {
 private:
-    T* buffer;          // Pointer to array of T pointers
+    T *buffer;          // Pointer to array of samples
     int head;           // Index of the head (front to read) of the queue
     int tail;           // Index of the tail (rear to write) of the queue
     int capacity;       // Capacity of the queue
 
 public:
+
+    //Constructor Code
     CircularFIFO(int capacity) : capacity(capacity + 1), head(0), tail(0) {
-        buffer = new T[this->capacity]; // Allocate memory
+        buffer = new T[this->capacity];                 // Allocate memory
         if (!buffer) {
-            throw std::bad_alloc(); // Handle allocation failure
+            throw std::bad_alloc();                     // Handle allocation failure
         }
     }
 
-    ~CircularFIFO() {
-        delete[] buffer; // Free the allocated memory for the buffer
+    // Get methods
+    int getHead() const { return head; }
+
+    int getTail() const { return tail; }
+
+    int getCapacity() const { return capacity; }
+
+    // Check if the queue is empty
+    bool isEmpty() const {
+        return head == tail;                            // If head and tail are the same, the queue is empty
     }
 
-    bool WriteElement(T element) {
+    // Check if the queue is full
+    bool isFull() const {
+        return (tail + 1) % capacity == head;           // If moving tail ahead hits the head, the queue is full
+    }
+
+    // Write an element to the queue
+    bool writeElement(T element) {
         if (isFull()) {
             std::cout << "Error: Cannot write to full buffer!" << std::endl; // Print error message       
             return false;                                // Return false to indicate the operation failed
@@ -35,7 +51,8 @@ public:
         return true;                                    // Return true to indicate success
     }
 
-    T ReadElement() {
+    // Read an element from the queue
+    T readElement() {
         if (isEmpty()) {
             throw std::underflow_error("Queue is empty. Cannot read element");
         }
@@ -44,31 +61,25 @@ public:
         return element;        
     }
 
-    bool isEmpty() const {
-        return head == tail;                            // If head and tail are the same, the queue is empty
-    }
-
-    bool isFull() const {
-        return (tail + 1) % capacity == head;           // If moving tail ahead hits the head, the queue is full
-    }
-
+    // Print buffer elements
     void printBufferElements() const {
         if (isEmpty()) {
             std::cout << "Queue is empty." << std::endl;
             return;
         }
 
-        int current = head;
-        std::cout << "Printing buffer elements: head = " << head 
-                  << ", tail = " << tail << ", capacity = " << capacity << std::endl;
+        std::cout << "Printing buffer elements: head = " << getHead() 
+                  << ", tail = " << getTail() << ", capacity = " << getCapacity() << std::endl;
+        
         // Access the AudioBuffer pointer
+        int current = head;
         while (current != tail) {
-            T ab = buffer[current]; 
-            if (ab) {                                   // Check if ab is not null
+            T abPtr = buffer[current];                  // abPtr is a pointer to AudioBuffer
+            if (abPtr) {                                // Check if abPtr is not null
                 std::cout << "AudioBuffer at location " << current 
-                          << " is " << ab << ", sample count: " 
-                          << ab->sample_count << std::endl;
-                ab->printSamples();                     // Print samples of the AudioBuffer
+                          << " is " << abPtr << ", sample count: " 
+                          << abPtr->sample_count << std::endl;
+                abPtr->printSamples();                  // Print samples using the reference
             } else {
                 std::cout << "AudioBuffer at location " << current << " is nullptr." << std::endl;
             }
@@ -77,9 +88,11 @@ public:
         std::cout << std::endl; 
     }
 
-    int getHead() const { return head; }
-    int getTail() const { return tail; }
-    int getCapacity() const { return capacity; }
+    // Destructor
+    ~CircularFIFO() {
+        delete[] buffer;                                // Free the allocated memory for the buffer
+    }
+
 };
 
 #endif // CIRCULAR_FIFO_H
